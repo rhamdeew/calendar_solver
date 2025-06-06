@@ -1,0 +1,36 @@
+# Makefile for the Calendar Solver project
+
+# Go parameters
+GOCMD=go
+GOBUILD=$(GOCMD) build
+GOTEST=$(GOCMD) test
+GOCLEAN=$(GOCMD) clean
+GOTOOL=$(GOCMD) tool
+
+# CLI application parameters
+CLI_BINARY_NAME=calendar_solver_cli
+CLI_PACKAGE=./cli
+
+.PHONY: build_cli run_cli test_cli clean
+
+# Build the CLI application
+build_cli:
+	@echo "Building CLI application..."
+	$(GOBUILD) -o $(CLI_BINARY_NAME) $(CLI_PACKAGE)
+
+# Run the CLI application with optional arguments
+# Example: make run_cli ARGS="--day 1 --month 1"
+run_cli: build_cli
+	@echo "Running CLI application..."
+	./$(CLI_BINARY_NAME) $(ARGS)
+
+# Test the CLI application
+test_cli:
+	@echo "Testing CLI application..."
+	$(GOTEST) -v $(CLI_PACKAGE)
+
+# Clean the project
+clean:
+	@echo "Cleaning up..."
+	rm -f $(CLI_BINARY_NAME)
+	$(GOCLEAN)

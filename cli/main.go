@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"puzzle_solver/solver"
 	"runtime"
 	"strconv"
 	"strings"
@@ -11,6 +12,9 @@ import (
 )
 
 func getMonthName(monthInput string, months []string) (string, error) {
+	if monthInput == "" {
+		return "", fmt.Errorf("invalid month: empty string")
+	}
 	// If it's already a Russian month name
 	for _, month := range months {
 		if monthInput == month {
@@ -41,13 +45,13 @@ func main() {
 	var testOnly = flag.Bool("test-only", false, "Skip main solve, run only test cases")
 	flag.Parse()
 
-	solver := NewCalendarBoardSolver()
+	s := solver.NewCalendarBoardSolver()
 
 	// Print board configuration
-	solver.PrintBoardConfiguration()
+	s.PrintBoardConfiguration()
 
 	// Print pieces configuration
-	solver.PrintPiecesConfiguration()
+	s.PrintPiecesConfiguration()
 
 	fmt.Println("\n" + strings.Repeat("=", 50))
 
@@ -58,18 +62,16 @@ func main() {
 	if *day != -1 && *month != "" {
 		currentDay = *day
 		var err error
-		currentMonth, err = getMonthName(*month, solver.Months)
+		currentMonth, err = getMonthName(*month, s.Months)
 		if err != nil {
-			log.Printf("Error: %v", err)
-			fmt.Printf("Available months: %s\n", strings.Join(solver.Months, ", "))
-			return
+			log.Fatalf("Error: %v\nAvailable months: %s", err, strings.Join(s.Months, ", "))
 		}
 		fmt.Printf("Command line date: %d %s\n", currentDay, currentMonth)
 	} else if !*testOnly {
 		// Use current date
 		now := time.Now()
 		currentDay = now.Day()
-		currentMonth = solver.Months[now.Month()-1]
+		currentMonth = s.Months[now.Month()-1]
 		fmt.Printf("Using current date: %d %s\n", currentDay, currentMonth)
 	}
 
@@ -80,10 +82,10 @@ func main() {
 
 	if !*testOnly && currentDay != 0 {
 		fmt.Printf("\nSolving calendar board for: %d %s\n", currentDay, currentMonth)
-		fmt.Printf("Available pieces: %d pieces\n", len(solver.Pieces))
+		fmt.Printf("Available pieces: %d pieces\n", len(s.Pieces))
 		fmt.Printf("Available CPU cores: %d\n", runtime.NumCPU())
 		fmt.Print("Piece sizes: [")
-		for i, piece := range solver.Pieces {
+		for i, piece := range s.Pieces {
 			if i > 0 {
 				fmt.Print(", ")
 			}
@@ -92,7 +94,7 @@ func main() {
 		fmt.Println("] cells each")
 
 		// Solve for target date
-		result := solver.SolveParallel(currentDay, currentMonth)
+		result := s.SolveParallel(currentDay, currentMonth)
 
 		if result.Found {
 			fmt.Printf("\n✓ Solution found in %.4f seconds!\n", result.SolveTime.Seconds())
@@ -100,7 +102,7 @@ func main() {
 			if result.SolveTime.Seconds() > 0 {
 				fmt.Printf("Attempts per second: %.0f\n", float64(result.Attempts)/result.SolveTime.Seconds())
 			}
-			solver.VisualizeSolution(currentDay, currentMonth, result.Solution, result.PieceMap)
+			s.VisualizeSolution(currentDay, currentMonth, result.Solution, result.PieceMap)
 		} else {
 			fmt.Printf("\n✗ No solution found for %d %s (took %.4f seconds)\n", currentDay, currentMonth, result.SolveTime.Seconds())
 			fmt.Printf("Total attempts: %d\n", result.Attempts)
@@ -134,7 +136,7 @@ func main() {
 			month := testDate[1].(string)
 
 			fmt.Printf("\nTesting %d %s...\n", day, month)
-			result := solver.SolveParallel(day, month)
+			result := s.SolveParallel(day, month)
 			totalTestTime += result.SolveTime
 
 			if result.Found {
