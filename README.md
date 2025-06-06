@@ -1,6 +1,21 @@
 # Calendar Puzzle Solver
 
+[![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/rhamdeew/calendar_solver/deploy.yml?branch=main)](https://github.com/rhamdeew/calendar_solver/actions)
+
 A high-performance Go implementation of a calendar puzzle solver that finds solutions for placing 8 unique pieces on a calendar board to cover all positions except the current date.
+
+## Live Demo
+
+Check out the live demo of the calendar solver [here](https://rhamdeew.github.io/calendar_solver/)!
+
+The demo is a WebAssembly (Wasm) build of the solver running directly in your browser.
+
+## Features
+
+- **High-Performance Solver**: Utilizes a parallel backtracking algorithm to find solutions quickly.
+- **WebAssembly Demo**: Interactive web-based version compiled to Wasm.
+- **Command-Line Interface**: A powerful CLI for local usage and testing.
+- **Visual Output**: Both the CLI and web demo provide clear visual representations of the solution.
 
 ## Overview
 

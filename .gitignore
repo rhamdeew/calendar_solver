@@ -1,1 +1,5 @@
 calendar_solver_cli
+
+# Binaries
+*.wasm
+calendar_solver

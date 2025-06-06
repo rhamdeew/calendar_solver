@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Solver</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <script src="wasm_exec.js"></script>
+    <script>
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("main.wasm"), go.importObject).then((result) => {
+            go.run(result.instance);
+        });
+
+        const pieceColors = [
+            'bg-red-500', 'bg-green-500', 'bg-blue-500', 'bg-yellow-500',
+            'bg-purple-500', 'bg-pink-500', 'bg-indigo-500', 'bg-teal-500'
+        ];
+
+        function renderBoard(pieceMap, blockedDay, blockedMonth) {
+            const boardDiv = document.getElementById('board');
+            boardDiv.innerHTML = ''; // Clear previous board
+
+            const months = ["Янв", "Фев", "Март", "Апр", "Май", "Июнь", "Июль", "Авг", "Сент", "Окт", "Нояб", "Дек"];
+            const boardGrid = Array.from({ length: 7 }, () => Array(7).fill(null));
+
+            // Populate month cells
+            for (let i = 0; i < 6; i++) {
+                boardGrid[0][i] = { text: months[i], isMonth: true, monthIndex: i + 1 };
+                boardGrid[1][i] = { text: months[i+6], isMonth: true, monthIndex: i + 7 };
+            }
+
+            // Populate day cells
+            let day = 1;
+            for (let r = 2; r < 7; r++) {
+                for (let c = 0; c < 7; c++) {
+                    if (day <= 31) {
+                        boardGrid[r][c] = { text: day.toString(), isDay: true, day: day };
+                        day++;
+                    }
+                }
+            }
+
+            // Mark blocked date and apply piece colors
+            for (let r = 0; r < 7; r++) {
+                for (let c = 0; c < 7; c++) {
+                    const cellData = boardGrid[r][c];
+                    const cell = document.createElement('div');
+                    cell.className = 'w-12 h-12 flex items-center justify-center border';
+
+                    if (cellData) {
+                        cell.innerText = cellData.text;
+                        cell.classList.add('text-xs');
+
+                        const key = `${r},${c}`;
+                        const isBlocked = (cellData.isMonth && cellData.monthIndex === blockedMonth) || (cellData.isDay && cellData.day === blockedDay);
+                        const isPiece = pieceMap[key];
+
+                        if (isBlocked) {
+                            cell.classList.add('bg-white', 'text-black', 'font-bold');
+                        } else if (isPiece) {
+                            cell.classList.add(pieceColors[(pieceMap[key] - 1) % pieceColors.length], 'text-white', 'font-bold');
+                        } else {
+                            cell.classList.add('text-gray-400');
+                        }
+                    }
+                    boardDiv.appendChild(cell);
+                }
+            }
+        }
+
+        async function solve() {
+            const day = document.getElementById('day').value;
+            const month = document.getElementById('month').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!window.solveCalendar) {
+                resultDiv.innerText = "WebAssembly is not loaded yet.";
+                return;
+            }
+
+            resultDiv.innerText = "Solving...";
+
+            const resultJSON = solveCalendar(parseInt(day), parseInt(month));
+            const result = JSON.parse(resultJSON);
+
+            if (result.found) {
+                resultDiv.innerText = `Found solution in ${result.solveTime} with ${result.attempts} attempts.`;
+                renderBoard(result.pieceMap, parseInt(day), parseInt(month));
+            } else {
+                resultDiv.innerText = "No solution found.";
+                document.getElementById('board').innerHTML = '';
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="text-center">
+        <h1 class="text-3xl font-bold mb-4">Calendar Solver</h1>
+        <div class="flex gap-4 justify-center mb-4">
+            <div>
+                <label for="day" class="block mb-2 text-sm font-medium text-gray-900">Day</label>
+                <input type="number" id="day" value="1" min="1" max="31" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            </div>
+            <div>
+                <label for="month" class="block mb-2 text-sm font-medium text-gray-900">Month</label>
+                <input type="number" id="month" value="1" min="1" max="12" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+            </div>
+        </div>
+        <button onclick="solve()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Solve
+        </button>
+        <div id="result" class="mt-4 p-4 bg-white rounded shadow-md">
+            Select a day and month, then click "Solve".
+        </div>
+        <div id="board" class="mt-4 grid grid-cols-7 gap-1 w-96"></div>
+    </div>
+</body>
+</html>
