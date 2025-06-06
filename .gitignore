@@ -2,4 +2,5 @@ calendar_solver_cli
 
 # Binaries
 *.wasm
+!/docs/main.wasm
 calendar_solver
