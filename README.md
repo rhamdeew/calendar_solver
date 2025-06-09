@@ -2,11 +2,21 @@
 
 A high-performance Go implementation of a calendar puzzle solver that finds solutions for placing 8 unique pieces on a calendar board to cover all positions except the current date.
 
-## Live Demo
+## 🌐 **[🚀 Try the Live Demo!](https://rhamdeew.github.io/calendar_solver/)** 🌐
 
-Check out the live demo of the calendar solver [here](https://rhamdeew.github.io/calendar_solver/)!
+> **Experience the solver in action directly in your browser - no installation required!**
+
+## 🎮 Live Demo
+
+**🔗 [Interactive Calendar Puzzle Solver](https://rhamdeew.github.io/calendar_solver/)**
 
 The demo is a WebAssembly (Wasm) build of the solver running directly in your browser. It is automatically updated with every push to the `main` branch.
+
+✨ **Features of the web demo:**
+- 🚀 Instant solving in your browser
+- 🎯 Interactive date selection
+- 📱 Works on mobile and desktop
+- 🔄 Real-time visualization
 
 ## Features
 
