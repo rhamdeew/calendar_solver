@@ -74,24 +74,69 @@
             const day = document.getElementById('day').value;
             const month = document.getElementById('month').value;
             const resultDiv = document.getElementById('result');
+            const solveButton = document.getElementById('solve-button');
 
             if (!window.solveCalendar) {
                 resultDiv.innerText = "WebAssembly is not loaded yet.";
                 return;
             }
 
-            resultDiv.innerText = "Solving...";
+            // Show loading state
+            solveButton.disabled = true;
+            solveButton.innerHTML = `
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Solving...
+            `;
+            solveButton.classList.add('opacity-75', 'cursor-not-allowed');
 
-            const resultJSON = solveCalendar(parseInt(day), parseInt(month));
-            const result = JSON.parse(resultJSON);
+            resultDiv.innerHTML = `
+                <div class="flex items-center justify-center">
+                    <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span>Solving puzzle for Day ${day}, Month ${month}...</span>
+                </div>
+            `;
 
-            if (result.found) {
-                resultDiv.innerText = `Found solution in ${result.solveTime} with ${result.attempts} attempts.`;
-                renderBoard(result.pieceMap, parseInt(day), parseInt(month));
-            } else {
-                resultDiv.innerText = "No solution found.";
-                document.getElementById('board').innerHTML = '';
-            }
+            // Use setTimeout to allow UI to update before starting the blocking solve operation
+            setTimeout(() => {
+                try {
+                    const resultJSON = solveCalendar(parseInt(day), parseInt(month));
+                    const result = JSON.parse(resultJSON);
+
+                    if (result.found) {
+                        resultDiv.innerHTML = `
+                            <div class="text-green-600 font-semibold">
+                                ✅ Found solution in ${result.solveTime} with ${result.attempts} attempts!
+                            </div>
+                        `;
+                        renderBoard(result.pieceMap, parseInt(day), parseInt(month));
+                    } else {
+                        resultDiv.innerHTML = `
+                            <div class="text-red-600 font-semibold">
+                                ❌ No solution found for Day ${day}, Month ${month}
+                            </div>
+                        `;
+                        document.getElementById('board').innerHTML = '';
+                    }
+                } catch (error) {
+                    resultDiv.innerHTML = `
+                        <div class="text-red-600 font-semibold">
+                            ❌ Error: ${error.message}
+                        </div>
+                    `;
+                    document.getElementById('board').innerHTML = '';
+                } finally {
+                    // Reset button state
+                    solveButton.disabled = false;
+                    solveButton.innerHTML = 'Solve';
+                    solveButton.classList.remove('opacity-75', 'cursor-not-allowed');
+                }
+            }, 50); // Small delay to allow UI update
         }
     </script>
 </head>
@@ -108,7 +153,7 @@
                 <input type="number" id="month" value="1" min="1" max="12" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
             </div>
         </div>
-        <button onclick="solve()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <button id="solve-button" onclick="solve()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200">
             Solve
         </button>
         <div id="result" class="mt-4 p-4 bg-white rounded shadow-md">
