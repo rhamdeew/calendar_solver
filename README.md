@@ -2,10 +2,6 @@
 
 A high-performance Go implementation of a calendar puzzle solver that finds solutions for placing 8 unique pieces on a calendar board to cover all positions except the current date.
 
-## 🌐 **[🚀 Try the Live Demo!](https://rhamdeew.github.io/calendar_solver/)** 🌐
-
-> **Experience the solver in action directly in your browser - no installation required!**
-
 ## 🎮 Live Demo
 
 **🔗 [Interactive Calendar Puzzle Solver](https://rhamdeew.github.io/calendar_solver/)**
