@@ -33,7 +33,10 @@ func solveCalendar(this js.Value, args []js.Value) interface{} {
 	}
 
 	s := solver.NewCalendarBoardSolver()
-	result := s.SolveParallel(day, month)
+	result, err := s.SolveParallel(day, month)
+	if err != nil {
+		return err.Error()
+	}
 
 	pieceMapForJS := make(map[string]int)
 	for pos, pieceNum := range result.PieceMap {

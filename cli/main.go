@@ -93,8 +93,16 @@ func main() {
 		}
 		fmt.Println("] cells each")
 
+		// Validate date before solving
+		if err := s.ValidateDate(currentDay, currentMonth); err != nil {
+			log.Fatalf("Error: invalid date: %v", err)
+		}
+
 		// Solve for target date
-		result := s.SolveParallel(currentDay, currentMonth)
+		result, err := s.SolveParallel(currentDay, currentMonth)
+		if err != nil {
+			log.Fatalf("Error: %v", err)
+		}
 
 		if result.Found {
 			fmt.Printf("\n✓ Solution found in %.4f seconds!\n", result.SolveTime.Seconds())
@@ -136,7 +144,7 @@ func main() {
 			month := testDate[1].(string)
 
 			fmt.Printf("\nTesting %d %s...\n", day, month)
-			result := s.SolveParallel(day, month)
+			result, _ := s.SolveParallel(day, month)
 			totalTestTime += result.SolveTime
 
 			if result.Found {
