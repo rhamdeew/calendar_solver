@@ -16,7 +16,10 @@ WEB_DIR=web
 WASM_BINARY_NAME=$(WEB_DIR)/main.wasm
 GO_WEB_PACKAGE=./$(WEB_DIR)
 
-.PHONY: build_cli run_cli test_cli clean build_web run_web build_wasm web
+DOCS_DIR=docs
+DOCS_ASSETS=manifest.json sw.js icon-192.png icon-512.png apple-touch-icon.png favicon.ico favicon-32.png favicon-16.png index.html wasm_exec.js
+
+.PHONY: build_cli run_cli test_cli clean build_web run_web build_wasm web deploy
 
 # Build the CLI application
 build_cli:
@@ -55,3 +58,10 @@ run_web:
 
 # Build and run the web application
 web: build_web run_web
+
+# Copy web assets to docs/ for GitHub Pages deployment
+deploy: build_wasm
+	@echo "Deploying to docs/..."
+	@for f in $(DOCS_ASSETS); do cp $(WEB_DIR)/$$f $(DOCS_DIR)/$$f; done
+	@cp $(WEB_DIR)/main.wasm $(DOCS_DIR)/main.wasm
+	@echo "Done. Commit docs/ to deploy."
