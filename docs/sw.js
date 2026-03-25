@@ -1,4 +1,4 @@
-const CACHE_NAME = 'calendar-solver-v1';
+const CACHE_NAME = 'calendar-solver-v2';
 const BASE = self.registration.scope;
 const ASSETS = [
   BASE,
@@ -8,6 +8,7 @@ const ASSETS = [
   BASE + 'manifest.json',
   BASE + 'icon-192.png',
   BASE + 'icon-512.png',
+  BASE + 'icon-512-maskable.png',
 ];
 
 self.addEventListener('install', (event) => {

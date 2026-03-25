@@ -34,7 +34,7 @@ jobs:
           mkdir docs
           cp web/index.html web/main.wasm web/wasm_exec.js \
              web/manifest.json web/sw.js \
-             web/icon-192.png web/icon-512.png web/apple-touch-icon.png \
+             web/icon-192.png web/icon-512.png web/icon-512-maskable.png web/apple-touch-icon.png \
              web/favicon.ico web/favicon-32.png web/favicon-16.png \
              docs/
           git add docs
